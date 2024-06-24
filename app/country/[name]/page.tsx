@@ -2,11 +2,18 @@ import type { Country as TypeCountry } from "@/app/page";
 import Image from "next/image";
 import Link from "next/link";
 
+// async function getCountryByName(name: string): Promise<TypeCountry> {
+//   const response = await fetch(
+//     `https://restcountries.com/v3.1/name/${name}?fullText=true`
+//   );
+//   return (await response.json())[0];
+// }
 async function getCountryByName(name: string): Promise<TypeCountry> {
-  const response = await fetch(
-    `https://restcountries.com/v3.1/name/${name}?fullText=true`
-  );
-  return (await response.json())[0];
+  const response = await fetch(`https://restcountries.com/v3.1/all`);
+  const countries: TypeCountry[] = await response.json();
+  return countries.find(
+    (country: TypeCountry) => country.name.common === name
+  )!;
 }
 
 export default async function Country({
@@ -14,7 +21,7 @@ export default async function Country({
 }: {
   params: { name: string };
 }) {
-  const country = await getCountryByName(name);
+  const country = await getCountryByName(decodeURI(name));
   const formatter = Intl.NumberFormat("en", { notation: "compact" });
 
   return (
