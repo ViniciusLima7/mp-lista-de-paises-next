@@ -1,3 +1,4 @@
+import CountryCard from "@/components/country-card";
 import type { Country as TypeCountry } from "@/app/page";
 import Image from "next/image";
 import Link from "next/link";
@@ -16,12 +17,32 @@ async function getCountryByName(name: string): Promise<TypeCountry> {
   )!;
 }
 
+async function getCountryBordersByName(name: string) {
+  const response = await fetch(`https://restcountries.com/v3.1/all`);
+  const countries: TypeCountry[] = await response.json();
+
+  const country = countries.find(
+    (country: TypeCountry) => country.name.common === name
+  )!;
+
+  return country.borders?.map((border) => {
+    const borderCountry = countries.find((country) => country.cca3 === border)!;
+    return {
+      name: borderCountry.name.common,
+      ptName: borderCountry.translations.por.common,
+      flag: borderCountry.flags.svg,
+      flagAlt: borderCountry.flags.alt,
+    };
+  });
+}
+
 export default async function Country({
   params: { name },
 }: {
   params: { name: string };
 }) {
   const country = await getCountryByName(decodeURI(name));
+  const borderCountries = await getCountryBordersByName(decodeURI(name));
   const formatter = Intl.NumberFormat("en", { notation: "compact" });
 
   return (
@@ -76,6 +97,17 @@ export default async function Country({
           />
         </div>
       </article>
+      <section>
+        <h3 className="mt-12 text-2xl font-semibold text-gray-800">
+          Bordering countries
+        </h3>
+        <div className="grid grid-cols-5 gap-3  w-full my-3">
+          {borderCountries?.map((border) => (
+            // <div>{border}</div>
+            <CountryCard {...border} />
+          ))}
+        </div>
+      </section>
     </section>
   );
 }
