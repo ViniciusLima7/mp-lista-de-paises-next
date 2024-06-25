@@ -103,7 +103,6 @@ export default async function Country({
         </h3>
         <div className="container grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4  xl:grid-cols-5 w-full gap-2">
           {borderCountries?.map((border) => (
-            // <div>{border}</div>
             <CountryCard key={border.name} {...border} />
           ))}
         </div>
